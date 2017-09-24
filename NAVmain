@@ -1,0 +1,85 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+public class Main {
+  /**
+   * Iterate through each line of input.
+   */
+  public static void main(String[] args) throws IOException {
+    InputStreamReader reader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
+    BufferedReader in = new BufferedReader(reader);
+    Set<String> newSet = new HashSet<String>();
+    String outputString="";
+    String line;
+    line = in.readLine();
+    Map<String, Double> portMap = new HashMap<String, Double>();
+    Map<String, Double> benchMap = new HashMap<String, Double>();
+    ArrayList<String> port = new ArrayList<String>(Arrays.asList(line.substring(5,line.indexOf("|")).split(";")));
+    ArrayList<String> bench = new ArrayList<String>(Arrays.asList(line.substring(line.indexOf("|")+7,line.length()).split(";")));
+    portMap=createMap(port);
+    benchMap=createMap(bench);
+    newSet=addTwoSets(portMap.keySet(),benchMap.keySet());
+    List<String> allItems = new ArrayList<String>(newSet);
+    Collections.sort(allItems);
+    for (int i=0; i<allItems.size(); i++){
+      if (portMap.containsKey(allItems.get(i)) && benchMap.containsKey(allItems.get(i))){
+        double num=portMap.get(allItems.get(i))-benchMap.get(allItems.get(i));
+        String diff = String.format("%.2f", num);
+        if (outputString != ""){
+          outputString=outputString+","+allItems.get(i)+":"+diff;
+        }
+        else{
+          outputString=outputString+allItems.get(i)+":"+diff; 
+        }
+      }
+      else if (portMap.containsKey(allItems.get(i)) && !(benchMap.containsKey(allItems.get(i)))){
+        double num=portMap.get(allItems.get(i))-0;
+        String diff = String.format("%.2f", num);
+        if (outputString != ""){
+          outputString=outputString+","+allItems.get(i)+":"+diff;
+        }
+        else{
+          outputString=outputString+allItems.get(i)+":"+diff;
+        }
+      }
+      else if (!(portMap.containsKey(allItems.get(i))) && benchMap.containsKey(allItems.get(i))){
+         double num=benchMap.get(allItems.get(i));
+         String diff = "-"+String.format("%.2f", num);
+         if (outputString != ""){
+          outputString=outputString+","+allItems.get(i)+":"+diff;
+         }
+         else{
+          outputString=outputString+allItems.get(i)+":"+diff;
+         }
+      }
+    }
+    System.out.println(outputString);
+    }
+
+  public static Map<String, Double> createMap(ArrayList<String> port){
+    Double stockVal=0.0;
+    Double totalStockVal=0.0;
+    Map<String, Double> portBench = new HashMap<String, Double>();
+    for (int i=0; i<port.size(); i++){
+      ArrayList <String> temp = new ArrayList<String>(Arrays.asList(port.get(i).split(",")));
+      stockVal=Double.valueOf(temp.get(1))*Double.valueOf(temp.get(2));
+      portBench.put(temp.get(0), stockVal);
+      totalStockVal=totalStockVal+stockVal;
+    }
+    Double newVal=0.0;
+    for (String key : portBench.keySet()) {
+      newVal=(portBench.get(key)/totalStockVal)*100.0;
+      portBench.put(key,newVal);
+    }
+    return portBench;
+  }
+  
+  public static Set<String> addTwoSets(Set<String> one, Set<String> two) {
+    Set<String> newSet = new HashSet<String>(one);
+    newSet.addAll(two);
+    return newSet;
+  }
+  
+}
